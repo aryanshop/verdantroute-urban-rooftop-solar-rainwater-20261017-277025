@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerdantRoute: Rooftop Solar & Rainwater Estimator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="brand">
+                <svg class="logo-icon" viewBox="0 0 24 24" width="32" height="32">
+                    <path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                <h1>VerdantRoute</h1>
+            </div>
+            <p class="tagline">Urban Rooftop Solar & Rainwater Harvesting Calculator</p>
+        </header>
+
+        <main class="main-grid">
+            <!-- Left Sidebar: Configuration Controls -->
+            <section class="panel config-panel">
+                <h2><span class="step">1</span> Roof & Location Specs</h2>
+                
+                <div class="input-group">
+                    <label for="roofWidth">Roof Width (meters): <span id="widthVal">10</span>m</label>
+                    <input type="range" id="roofWidth" min="4" max="30" value="10" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label for="roofLength">Roof Length (meters): <span id="lengthVal">12</span>m</label>
+                    <input type="range" id="roofLength" min="4" max="30" value="12" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label for="sunZone">Sunlight / Climate Zone</label>
+                    <select id="sunZone">
+                        <option value="1200">Low Sun / Northern Temp (1,200 kWh/kWp)</option>
+                        <option value="1500" selected>Moderate / Central (1,500 kWh/kWp)</option>
+                        <option value="1900">High Sun / Mediterranean / Arid (1,900 kWh/kWp)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="annualRainfall">Annual Rainfall (mm): <span id="rainVal">850</span>mm</label>
+                    <input type="range" id="annualRainfall" min="300" max="2500" value="850" step="50">
+                </div>
+
+                <div class="input-group">
+                    <label for="roofMaterial">Roof Surface Material</label>
+                    <select id="roofMaterial">
+                        <option value="0.95">Tile / Concrete (Efficiency 0.95)</option>
+                        <option value="0.90" selected>Metal / Composite (Efficiency 0.90)</option>
+                        <option value="0.80">Green Roof / Gravel (Efficiency 0.80)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="electricityRate">Electricity Cost ($/kWh): $<span id="rateVal">0.18</span></label>
+                    <input type="range" id="electricityRate" min="0.05" max="0.40" value="0.18" step="0.01">
+                </div>
+            </section>
+
+            <!-- Center Column: Visualizers & Grid -->
+            <div class="center-column">
+                <!-- Tabs -->
+                <div class="tab-bar">
+                    <button class="tab-btn active" data-tab="solarTab">☀️ Solar PV Layout</button>
+                    <button class="tab-btn" data-tab="waterTab">💧 Rainwater & Tanks</button>
+                    <button class="tab-btn" data-tab="chartsTab">📊 Monthly Breakdown</button>
+                </div>
+
+                <!-- Tab 1: Solar Grid -->
+                <div class="tab-content active" id="solarTab">
+                    <div class="canvas-header">
+                        <h3>Interactive Roof Grid (Click/Drag to place panels)</h3>
+                        <div class="legend">
+                            <span class="badge available">Available Space</span>
+                            <span class="badge panel">Solar Panel (1x1.7m)</span>
+                        </div>
+                    </div>
+                    <div class="grid-wrapper">
+                        <div id="roofGrid" class="roof-grid"></div>
+                    </div>
+                    <p class="hint">💡 Tip: Maximize panel placement while keeping 1m clearance for maintenance paths.</p>
+                </div>
+
+                <!-- Tab 2: Water Storage -->
+                <div class="tab-content" id="waterTab">
+                    <div class="water-visualizer-container">
+                        <div class="tank-graphic">
+                            <div class="tank-body">
+                                <div id="waterFill" class="water-fill" style="height: 60%;">
+                                    <span id="tankLitresLabel">6,800 L</span>
+                                </div>
+                            </div>
+                            <div class="tank-label">Cistern Storage Tank</div>
+                        </div>
+                        <div class="water-stats-box">
+                            <h3>Rainwater Harvesting Potential</h3>
+                            <div class="stat-row">
+                                <span>Catchment Area:</span>
+                                <strong id="catchmentArea">120 m²</strong>
+                            </div>
+                            <div class="stat-row">
+                                <span>Annual Harvest Yield:</span>
+                                <strong id="annualHarvest">91,800 Liters</strong>
+                            </div>
+                            <div class="stat-row">
+                                <span>Recommended Tank Size:</span>
+                                <strong id="recTankSize">10,000 Liters</strong>
+                            </div>
+                            <div class="stat-row">
+                                <span>Toilet & Garden Offset:</span>
+                                <strong id="waterOffset">65% of household needs</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Monthly Breakdown Charts -->
+                <div class="tab-content" id="chartsTab">
+                    <h3>Monthly Generation & Collection Profile</h3>
+                    <div class="chart-container">
+                        <div class="bar-chart" id="monthlyChart">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <span class="legend-item"><i class="color-box solar"></i> Solar Energy (kWh)</span>
+                        <span class="legend-item"><i class="color-box water"></i> Rainwater (100L units)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar: Summary Metrics & Audit Report -->
+            <section class="panel summary-panel">
+                <h2><span class="step">2</span> Audit & Yield Summary</h2>
+                
+                <div class="metric-card solar-card">
+                    <div class="metric-icon">⚡</div>
+                    <div class="metric-data">
+                        <span class="metric-label">Annual Solar Generation</span>
+                        <strong id="totalSolarGen">6,480 kWh</strong>
+                        <span class="metric-sub" id="solarSavings">Est. Savings: $1,166 / yr</span>
+                    </div>
+                </div>
+
+                <div class="metric-card co2-card">
+                    <div class="metric-icon">🌱</div>
+                    <div class="metric-data">
+                        <span class="metric-label">Carbon Offset (CO₂)</span>
+                        <strong id="totalCarbon">4.5 Tons</strong>
+                        <span class="metric-sub">Equivalent to 74 tree seedlings</span>
+                    </div>
+                </div>
+
+                <div class="metric-card water-card">
+                    <div class="metric-icon">🌧️</div>
+                    <div class="metric-data">
+                        <span class="metric-label">Water Collected</span>
+                        <strong id="totalWaterGen">91,800 L</strong>
+                        <span class="metric-sub" id="waterSavings">Est. Bill Reduction: $320 / yr</span>
+                    </div>
+                </div>
+
+                <div class="audit-actions">
+                    <button id="btnReset" class="btn secondary">Reset Layout</button>
+                    <button id="btnPrint" class="btn primary">Print / Export Report</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Printable Report Modal / View -->
+        <div id="reportModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" id="btnCloseModal">&times;</button>
+                <h2>VerdantRoute Sustainability Audit Report</h2>
+                <p class="report-date" id="reportDate"></p>
+                
+                <div class="report-section">
+                    <h3>1. Property & Roof Specifications</h3>
+                    <ul>
+                        <li>Roof Dimensions: <span id="repDim">10m x 12m (120 m²)</span></li>
+                        <li>Roof Material: <span id="repMat">Metal / Composite (0.90 runoff)</span></li>
+                        <li>Sunlight Zone: <span id="repSun">1,500 kWh/kWp</span></li>
+                        <li>Annual Rainfall: <span id="repRain">850 mm</span></li>
+                    </ul>
+                </div>
+
+                <div class="report-section">
+                    <h3>2. Renewable Energy & Financial Yield</h3>
+                    <ul>
+                        <li>Installed Panels: <span id="repPanels">36 Panels (~14.4 kWp)</span></li>
+                        <li>Annual Energy Production: <span id="repEnergy">6,480 kWh</span></li>
+                        <li>Annual Financial Savings: <span id="repMoney">$1,166 / year</span></li>
+                        <li>Estimated CO2 Offset: <span id="repCarbon">4.5 metric tons / year</span></li>
+                    </ul>
+                </div>
+
+                <div class="report-section">
+                    <h3>3. Water Harvesting & Cistern Specs</h3>
+                    <ul>
+                        <li>Annual Harvest Yield: <span id="repWater">91,800 Liters</span></li>
+                        <li>Recommended Storage Tank: <span id="repTank">10,000 Liters</span></li>
+                    </ul>
+                </div>
+
+                <div class="report-actions">
+                    <button onclick="window.print();" class="btn primary">Print Official Report</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="app-footer">
+            <p>VerdantRoute &bull; Designed for sustainable urban living and green architecture.</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
